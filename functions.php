@@ -1,59 +1,45 @@
 <?php
 
-/**
- *
- * @param mysqli
- *
- * @return mixed 
- * @throws Exception 
- */
 function check_login($con)
 {
-    if(isset($_SESSION['user_id']))
-    {
-        $id = $_SESSION['user_id'];
-        
-        $stmt = $con->prepare("SELECT * FROM users WHERE user_id = ?");
-        if(!$stmt)
-        {
-            throw new Exception("Unable to prepare query statement.");
-        }
-        
-        $stmt->bind_param("s", $id);
-        
-        if(!$stmt->execute())
-        {
-            throw new Exception("Unable to execute query.");
-        }
-        
-        $result = $stmt->get_result();
-        if($result && $result->num_rows > 0)
-        {
-            $user_data = $result->fetch_assoc();
-            return $user_data;
-        }
-    }
 
-    return false;
+	if(isset($_SESSION['user_id']))
+	{
+
+		$id = $_SESSION['user_id'];
+		$query = "select * from users where user_id = '$id' limit 1";
+
+		$result = mysqli_query($con,$query);
+		if($result && mysqli_num_rows($result) > 0)
+		{
+
+			$user_data = mysqli_fetch_assoc($result);
+			return $user_data;
+		}
+	}
+
+	//redirect to login
+	header("Location: login.php");
+	die;
+
 }
 
-/**
- * 
- *
- * @param int 
- * @param string 
- *
- * @return string 
- */
-function generate_random_string($length, $chars = '0123456789')
+function random_num($length)
 {
-    $text = "";
-    $char_count = strlen($chars);
-    
-    for ($i = 0; $i < $length; $i++)
-    {
-        $text .= $chars[rand(0, $char_count - 1)];
-    }
 
-    return $text;
+	$text = "";
+	if($length < 5)
+	{
+		$length = 5;
+	}
+
+	$len = rand(4,$length);
+
+	for ($i=0; $i < $len; $i++) { 
+		# code...
+
+		$text .= rand(0,9);
+	}
+
+	return $text;
 }
