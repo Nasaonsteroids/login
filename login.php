@@ -1,6 +1,8 @@
 <style>
     .white-text {
         color: white;
+        font-size: 70px;
+
     }
 </style>¨
 
