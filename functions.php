@@ -2,10 +2,10 @@
 
 /**
  *
- * @param mysqli $con The database connection object.
+ * @param mysqli
  *
- * @return mixed The user data if authenticated, otherwise false.
- * @throws Exception If there was an error querying the database.
+ * @return mixed 
+ * @throws Exception 
  */
 function check_login($con)
 {
@@ -13,23 +13,19 @@ function check_login($con)
     {
         $id = $_SESSION['user_id'];
         
-        // Prepare the query statement
         $stmt = $con->prepare("SELECT * FROM users WHERE user_id = ?");
         if(!$stmt)
         {
             throw new Exception("Unable to prepare query statement.");
         }
         
-        // Bind the user_id parameter
         $stmt->bind_param("s", $id);
         
-        // Execute the query
         if(!$stmt->execute())
         {
             throw new Exception("Unable to execute query.");
         }
         
-        // Get the user data
         $result = $stmt->get_result();
         if($result && $result->num_rows > 0)
         {
@@ -38,17 +34,16 @@ function check_login($con)
         }
     }
 
-    // User is not authenticated
     return false;
 }
 
 /**
- * Generates a random string of a specified length.
+ * 
  *
- * @param int $length The length of the string to generate.
- * @param string $chars The characters to include in the string.
+ * @param int 
+ * @param string 
  *
- * @return string The random string.
+ * @return string 
  */
 function generate_random_string($length, $chars = '0123456789')
 {

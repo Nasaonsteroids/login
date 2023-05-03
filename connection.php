@@ -13,7 +13,5 @@ if (!$con) {
 
 mysqli_set_charset($con, 'utf8mb4');
 
-// Set additional options for the database connection
-mysqli_options($con, MYSQLI_OPT_CONNECT_TIMEOUT, 10); // Set connection timeout to 10 seconds
+mysqli_options($con, MYSQLI_OPT_CONNECT_TIMEOUT, 5); 
 
-// Use the $con variable for database operations
