@@ -4,52 +4,41 @@
     }
 </style>¨
 
-<?php 
+<?php
 
 session_start();
 
-	include("connection.php");
-	include("functions.php");
+include("connection.php");
+include("functions.php");
 
+if ($_SERVER['REQUEST_METHOD'] == "POST") {
+    //something was posted
+    $user_name = $_POST['user_name'];
+    $password = $_POST['password'];
 
-	if($_SERVER['REQUEST_METHOD'] == "POST")
-	{
-		//something was posted
-		$user_name = $_POST['user_name'];
-		$password = $_POST['password'];
+    if (!empty($user_name) && !empty($password) && !is_numeric($user_name)) {
+        //read from database
+        $stmt = mysqli_prepare($con, "SELECT * FROM users WHERE user_name = ? LIMIT 1");
+        mysqli_stmt_bind_param($stmt, "s", $user_name);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
 
-		if(!empty($user_name) && !empty($password) && !is_numeric($user_name))
-		{
-
-			//read from database
-			$query = "select * from users where user_name = '$user_name' limit 1";
-			$result = mysqli_query($con, $query);
-
-			if($result)
-			{
-				if($result && mysqli_num_rows($result) > 0)
-				{
-
-					$user_data = mysqli_fetch_assoc($result);
-					
-					if($user_data['password'] === $password)
-					{
-
-						$_SESSION['user_id'] = $user_data['user_id'];
-						header("Location: index.php");
-						die;
-					}
-				}
-			}
-			
-			echo "<span class='white-text'>wrong username or password!</span>";
-		}else
-		{
-			echo "<span class='white-text'>wrong username or password!</span>";
-		}
-	}
+        if ($result && mysqli_num_rows($result) > 0) {
+            $user_data = mysqli_fetch_assoc($result);
+            if (password_verify($password, $user_data['password'])) {
+                $_SESSION['user_id'] = $user_data['user_id'];
+                header("Location: index.php");
+                exit;
+            }
+        }
+        echo "<span class='white-text'>Incorrect login credentials</span>";
+    } else {
+        echo "<span class='white-text'>Incorrect login credentials</span>";
+    }
+}
 
 ?>
+
 
 
 <!DOCTYPE html>

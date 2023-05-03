@@ -7,37 +7,44 @@
 <?php 
 session_start();
 
-	include("connection.php");
-	include("functions.php");
+include("connection.php");
+include("functions.php");
 
+define("TABLE_NAME", "users");
+define("USER_ID_COLUMN", "user_id");
+define("USER_NAME_COLUMN", "user_name");
+define("PASSWORD_COLUMN", "password");
 
-	if($_SERVER['REQUEST_METHOD'] == "POST")
-	{
-		$user_name = $_POST['user_name'];
-		$password = $_POST['password'];
+if($_SERVER['REQUEST_METHOD'] == "POST")
+{
+    $username = $_POST['user_name'];
+    $password = $_POST['password'];
 
-		if(!empty($user_name) && !empty($password) && !is_numeric($user_name))
-		{
-			//testar ifall deras namn är redan använt
-			$query = "SELECT * FROM users WHERE user_name='$user_name'";
-			$result = mysqli_query($con, $query);
-			
-			if (mysqli_num_rows($result) == 0) {
-				$user_id = random_num(20);
-				$query = "INSERT INTO users (user_id,user_name,password) VALUES ('$user_id','$user_name','$password')";
-				mysqli_query($con, $query);
-				
-				header("Location: login.php");
-				die;
-			} else {
-				echo "<span class='white-text'>Username already taken. Please choose a different username.</span>";
-			}
-		}
-        else
-		{
-			echo "<span class='white-text'>Please enter some valid information!</span>";
-		}
-	}
+    if(!empty($username) && !empty($password) && !is_numeric($username))
+    {
+        $stmt = mysqli_prepare($con, "SELECT * FROM ".TABLE_NAME." WHERE ".USER_NAME_COLUMN."=?");
+        mysqli_stmt_bind_param($stmt, "s", $username);
+        mysqli_stmt_execute($stmt);
+        $result = mysqli_stmt_get_result($stmt);
+        
+        if (mysqli_num_rows($result) == 0) {
+            $user_id = bin2hex(random_bytes(10));
+            $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+            $stmt = mysqli_prepare($con, "INSERT INTO ".TABLE_NAME." (".USER_ID_COLUMN.", ".USER_NAME_COLUMN.", ".PASSWORD_COLUMN.") VALUES (?, ?, ?)");
+            mysqli_stmt_bind_param($stmt, "sss", $user_id, $username, $hashed_password);
+            mysqli_stmt_execute($stmt);
+            
+            header("Location: login.php");
+            die;
+        } else {
+            echo "<span class='white-text'>Username already taken. Please choose a different username.</span>";
+        }
+    }
+    else
+    {
+        echo "<span class='white-text'>Please enter some valid information!</span>";
+    }
+}
 ?>
 
 
